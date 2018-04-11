@@ -1,9 +1,16 @@
+#include <DHT.h>
+
 //LEDs and control for AC heating/cooling control
 #define COOL_AC_BLUE_LED 25
 #define HEAT_AC_RED_LED 26
 
 //debug serial port
 #define BAUTRATE 9600
+
+//DHT11 temperature and humidity sensor for greenhouse
+#define DHT_PIN_GREENHOUSE 32
+#define DHTTYPE DHT11
+DHT dhtSensorGreenhouse(DHT_PIN_GREENHOUSE, DHTTYPE);
 
 void setup() {
 //initial LEDs and control for AC heating/cooling control
