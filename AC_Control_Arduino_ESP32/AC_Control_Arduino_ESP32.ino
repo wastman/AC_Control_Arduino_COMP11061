@@ -16,6 +16,9 @@ DHT dhtSensorGreenhouse(DHT_PIN_GREENHOUSE, DHTTYPE);
 #define DHT_PIN_EQUIPMENT 33
 DHT dhtSensorEquipment(DHT_PIN_EQUIPMENT, DHTTYPE);
 
+//global variables
+boolean updateMeasurement = false;
+
 void setup() {
 //initial LEDs and control for AC heating/cooling control
 pinMode(COOL_AC_BLUE_LED, OUTPUT);//configurate output
@@ -23,13 +26,33 @@ pinMode(HEAT_AC_RED_LED, OUTPUT);//configurate output
 
 //initial debug serial port
 Serial.begin(BAUTRATE);//initial debug serial connection
+
+//initial DHT11 temperature and humidity sensor for greenhouse
+dhtSensorGreenhouse.begin();//initial DHT11 Sensor
+
+//initial DHT11 temperature and humidity sensor for equipment
+dhtSensorEquipment.begin();//initial DHT11 Sensor
+
+//update timer interrupt (1s)
+hw_timer_t * updateTimer = NULL;
+updateTimer = timerBegin(0,80,true);
+timerAttachInterrupt(updateTimer, &UpdateTimerInterrupt, true);
+timerAlarmWrite(updateTimer,1000000, true);
+timerAlarmEnable(updateTimer);
+
+
   
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-delay(1000);
 
+//Every 0,5 seconds update measurement
+if (updateMeasurement == true){
+  UpdateMeasurement();
+}
+}
+
+void UpdateMeasurement() {
 float tempratureDHTGreenhouse;
 float humidityDHTGreenhouse;
 float tempratureDHTEquipment;
@@ -46,6 +69,10 @@ Serial.print(tempratureDHTGreenhouse);
 Serial.print(" ");
 Serial.print(humidityDHTGreenhouse);
 Serial.print(" Equipment "); 
-Serial.print(tempratureDHTEquipment);
+Serial.println(tempratureDHTEquipment);
+updateMeasurement = false;
+}
 
+void UpdateTimerInterrupt(){
+updateMeasurement = true;
 }
