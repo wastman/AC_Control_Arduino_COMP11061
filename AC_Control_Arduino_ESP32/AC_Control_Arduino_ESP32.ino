@@ -16,6 +16,9 @@ DHT dhtSensorGreenhouse(DHT_PIN_GREENHOUSE, DHTTYPE);
 #define DHT_PIN_EQUIPMENT 33
 DHT dhtSensorEquipment(DHT_PIN_EQUIPMENT, DHTTYPE);
 
+//global variables
+boolean updateMeasurement = false;
+
 void setup() {
 //initial LEDs and control for AC heating/cooling control
 pinMode(COOL_AC_BLUE_LED, OUTPUT);//configurate output
@@ -42,9 +45,14 @@ timerAlarmEnable(updateTimer);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-delay(1000);
 
+//Every 0,5 seconds update measurement
+if (updateMeasurement == true){
+  UpdateMeasurement();
+}
+}
+
+void UpdateMeasurement() {
 float tempratureDHTGreenhouse;
 float humidityDHTGreenhouse;
 float tempratureDHTEquipment;
@@ -61,8 +69,8 @@ Serial.print(tempratureDHTGreenhouse);
 Serial.print(" ");
 Serial.print(humidityDHTGreenhouse);
 Serial.print(" Equipment "); 
-Serial.print(tempratureDHTEquipment);
-
+Serial.println(tempratureDHTEquipment);
+updateMeasurement = false;
 }
 
 void UpdateTimerInterrupt(){
