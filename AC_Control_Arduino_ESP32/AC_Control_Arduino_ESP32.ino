@@ -97,6 +97,7 @@ rfidID |= (uint32_t) rfidSensor.uid.uidByte[2] << 8;
 rfidID |= (uint32_t) rfidSensor.uid.uidByte[3]; 
 rfidSensor.PICC_HaltA();
 rfidIDString = String(rfidID, DEC);
+Serial.print("RFID scanned: ");
 Serial.println(rfidIDString);
  } 
 }
