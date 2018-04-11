@@ -1,5 +1,6 @@
 #include <DHT.h>
 #include <MFRC522.h>
+#include <WiFi.h>
 
 //LEDs and control for AC heating/cooling control
 #define COOL_AC_BLUE_LED 25
@@ -21,6 +22,11 @@ DHT dhtSensorEquipment(DHT_PIN_EQUIPMENT, DHTTYPE);
 #define RST_PIN 22
 #define SS_PIN 5
 MFRC522 rfidSensor(SS_PIN, RST_PIN);
+
+//Wifi connection and mqtt server adress
+const char* ssid = "WlanWastman";
+const char* password = "kreuzer1908";
+const char* mqtt_server = "192.168.119.44";
 
 //global variables
 boolean updateMeasurement = false;
@@ -50,11 +56,16 @@ timerAttachInterrupt(updateTimer, &UpdateTimerInterrupt, true);
 timerAlarmWrite(updateTimer,1000000, true);
 timerAlarmEnable(updateTimer);
 
-
+//connecting with wifi
+wificonnect();
   
 }
 
 void loop() {
+//reconnect wifi if not connected
+if (WiFi.status() != WL_CONNECTED){
+  wificonnect();
+}
 
 //Every 0,5 seconds update measurement
 if (updateMeasurement == true){
@@ -100,6 +111,20 @@ rfidIDString = String(rfidID, DEC);
 Serial.print("RFID scanned: ");
 Serial.println(rfidIDString);
  } 
+}
+
+void wificonnect() {
+Serial.print("Connecting to ");
+Serial.println(ssid);
+WiFi.begin(ssid, password);
+while (WiFi.status() != WL_CONNECTED) {
+  delay(500);
+  Serial.print(".");
+}
+Serial.println("");
+Serial.println("WiFi connected");
+Serial.println("IP address: ");
+Serial.println(WiFi.localIP());  
 }
 
 void UpdateTimerInterrupt(){
