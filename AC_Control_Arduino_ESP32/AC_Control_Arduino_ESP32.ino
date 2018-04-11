@@ -23,6 +23,15 @@ pinMode(HEAT_AC_RED_LED, OUTPUT);//configurate output
 
 //initial debug serial port
 Serial.begin(BAUTRATE);//initial debug serial connection
+
+//update timer interrupt (1s)
+hw_timer_t * updateTimer = NULL;
+updateTimer = timerBegin(0,80,true);
+timerAttachInterrupt(updateTimer, &UpdateTimerInterrupt, true);
+timerAlarmWrite(updateTimer,1000000, true);
+timerAlarmEnable(updateTimer);
+
+
   
 }
 
@@ -48,4 +57,8 @@ Serial.print(humidityDHTGreenhouse);
 Serial.print(" Equipment "); 
 Serial.print(tempratureDHTEquipment);
 
+}
+
+void UpdateTimerInterrupt(){
+updateMeasurement = true;
 }
