@@ -1,9 +1,20 @@
+#include <DHT.h>
+
 //LEDs and control for AC heating/cooling control
 #define COOL_AC_BLUE_LED 25
 #define HEAT_AC_RED_LED 26
 
 //debug serial port
 #define BAUTRATE 9600
+
+//DHT11 temperature and humidity sensor for greenhouse
+#define DHT_PIN_GREENHOUSE 32
+#define DHTTYPE DHT11
+DHT dhtSensorGreenhouse(DHT_PIN_GREENHOUSE, DHTTYPE);
+
+//DHT11 temperature and humidity sensor for equipment
+#define DHT_PIN_EQUIPMENT 33
+DHT dhtSensorEquipment(DHT_PIN_EQUIPMENT, DHTTYPE);
 
 void setup() {
 //initial LEDs and control for AC heating/cooling control
@@ -17,5 +28,24 @@ Serial.begin(BAUTRATE);//initial debug serial connection
 
 void loop() {
   // put your main code here, to run repeatedly:
+delay(1000);
+
+float tempratureDHTGreenhouse;
+float humidityDHTGreenhouse;
+float tempratureDHTEquipment;
+
+//getting greenhouse values (temp,hum) 
+tempratureDHTGreenhouse = dhtSensorGreenhouse.readTemperature();
+humidityDHTGreenhouse = dhtSensorGreenhouse.readHumidity();
+
+//getting greenhouse value (temp)
+tempratureDHTEquipment = dhtSensorEquipment.readTemperature();
+
+Serial.print("Greenhouse ");
+Serial.print(tempratureDHTGreenhouse); 
+Serial.print(" ");
+Serial.print(humidityDHTGreenhouse);
+Serial.print(" Equipment "); 
+Serial.print(tempratureDHTEquipment);
 
 }
