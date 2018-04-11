@@ -24,5 +24,18 @@ Serial.begin(BAUTRATE);//initial debug serial connection
 
 void loop() {
   // put your main code here, to run repeatedly:
+delay(1000);
+
+float tempratureDHTGreenhouse;
+float humidityDHTGreenhouse;
+
+//getting greenhouse values (temp,hum) 
+tempratureDHTGreenhouse = dhtSensorGreenhouse.readTemperature();
+humidityDHTGreenhouse = dhtSensorGreenhouse.readHumidity();
+
+Serial.print("Greenhouse ");
+Serial.print(tempratureDHTGreenhouse); 
+Serial.print(" ");
+Serial.print(humidityDHTGreenhouse); 
 
 }
