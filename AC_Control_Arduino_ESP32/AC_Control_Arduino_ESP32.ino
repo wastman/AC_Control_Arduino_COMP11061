@@ -37,8 +37,12 @@ PubSubClient client(espClient);
 #define MODE_TOPIC    "AcControl/Mode"
 
 //global variables
+#define AUTO 1
+#define HEAT 2
+#define COOL 3
 boolean updateMeasurement = false;
 char msg[20];
+byte modeAcControl = AUTO;
 
 void setup() {
 //initial LEDs and control for AC heating/cooling control
@@ -140,11 +144,25 @@ void receivedCallback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message received: ");
   Serial.println(topic);
 
-//Hier kommt die nachricht rein
-  Serial.print("payload: ");
+//msg receiving
   for (int i = 0; i < length; i++) {
     recMsg = recMsg + (char)payload[i];
   }
+
+if ((char)payload[0] == '1'){
+modeAcControl=AUTO;
+Serial.print("Mode: AUTO");
+}else if ((char)payload[0] == '2'){
+modeAcControl=HEAT;
+Serial.print("Mode: HEAT");
+}else if ((char)payload[0] == '3'){
+modeAcControl=COOL;
+Serial.print("Mode: COOL");
+}else{
+Serial.print("this is no valid command: ");
+Serial.print(recMsg);
+}
+  Serial.println();
 } 
 
 void wificonnect() {
