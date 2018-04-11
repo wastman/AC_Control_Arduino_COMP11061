@@ -24,6 +24,12 @@ pinMode(HEAT_AC_RED_LED, OUTPUT);//configurate output
 //initial debug serial port
 Serial.begin(BAUTRATE);//initial debug serial connection
 
+//initial DHT11 temperature and humidity sensor for greenhouse
+dhtSensorGreenhouse.begin();//initial DHT11 Sensor
+
+//initial DHT11 temperature and humidity sensor for equipment
+dhtSensorEquipment.begin();//initial DHT11 Sensor
+
 //update timer interrupt (1s)
 hw_timer_t * updateTimer = NULL;
 updateTimer = timerBegin(0,80,true);
