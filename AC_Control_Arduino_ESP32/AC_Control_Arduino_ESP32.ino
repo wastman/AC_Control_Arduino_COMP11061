@@ -136,6 +136,31 @@ Serial.print(" ");
 Serial.print(humidityDHTGreenhouse);
 Serial.print(" Equipment "); 
 Serial.println(tempratureDHTEquipment);
+
+switch (modeAcControl){ 
+  case AUTO:
+    Serial.print(" Mode:Auto ");
+    if ( tempratureDHTGreenhouse < tempratureDHTEquipment-1){
+      digitalWrite(COOL_AC_BLUE_LED, HIGH);
+      digitalWrite(HEAT_AC_RED_LED, LOW);
+      client.publish("AcControl/Status/Heat", "OFF");
+      client.publish("AcControl/Status/Cool", "ON");
+      Serial.println("Heat:OFF Cool:ON");
+  } else if ( tempratureDHTGreenhouse > tempratureDHTEquipment+1){
+      digitalWrite(HEAT_AC_RED_LED, HIGH);
+      digitalWrite(COOL_AC_BLUE_LED, LOW);
+      client.publish("AcControl/Status/Heat", "ON");
+      client.publish("AcControl/Status/Cool", "OFF");
+      Serial.println("Heat:ON Cool:OFF");
+  } else {
+      digitalWrite(HEAT_AC_RED_LED, LOW);
+      digitalWrite(COOL_AC_BLUE_LED, LOW);
+      client.publish("AcControl/Status/Heat", "OFF");
+      client.publish("AcControl/Status/Cool", "OFF");
+      Serial.println("Heat:OFF Cool:OFF");
+   }
+  break;
+}
 updateMeasurement = false;
 }
 
