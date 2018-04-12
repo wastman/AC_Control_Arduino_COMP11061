@@ -140,6 +140,7 @@ Serial.println(tempratureDHTEquipment);
 switch (modeAcControl){ 
   case AUTO:
     Serial.print(" Mode:Auto ");
+    client.publish("AcControl/Status/Mode", "Auto");
     if ( tempratureDHTGreenhouse < tempratureDHTEquipment-1){
       digitalWrite(COOL_AC_BLUE_LED, HIGH);
       digitalWrite(HEAT_AC_RED_LED, LOW);
@@ -162,6 +163,7 @@ switch (modeAcControl){
   break;
   case HEAT:
     Serial.print(" Mode:Heat ");
+    client.publish("AcControl/Status/Mode", "Heat");
     digitalWrite(HEAT_AC_RED_LED, HIGH);
     digitalWrite(COOL_AC_BLUE_LED, LOW);
     client.publish("AcControl/Status/Heat", "ON");
@@ -169,7 +171,8 @@ switch (modeAcControl){
     Serial.println("Heat:ON Cool:OFF");
   break;
   case COOL:
-    Serial.print(" Mode:Heat ");
+    Serial.print(" Mode:Cool ");
+    client.publish("AcControl/Status/Mode", "Cool");
     digitalWrite(COOL_AC_BLUE_LED, HIGH);
     digitalWrite(HEAT_AC_RED_LED, LOW);
     client.publish("AcControl/Status/Heat", "OFF");
