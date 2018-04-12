@@ -160,6 +160,22 @@ switch (modeAcControl){
       Serial.println("Heat:OFF Cool:OFF");
    }
   break;
+  case HEAT:
+    Serial.print(" Mode:Heat ");
+    digitalWrite(HEAT_AC_RED_LED, HIGH);
+    digitalWrite(COOL_AC_BLUE_LED, LOW);
+    client.publish("AcControl/Status/Heat", "ON");
+    client.publish("AcControl/Status/Cool", "OFF");
+    Serial.println("Heat:ON Cool:OFF");
+  break;
+  case COOL:
+    Serial.print(" Mode:Heat ");
+    digitalWrite(COOL_AC_BLUE_LED, HIGH);
+    digitalWrite(HEAT_AC_RED_LED, LOW);
+    client.publish("AcControl/Status/Heat", "OFF");
+    client.publish("AcControl/Status/Cool", "ON");
+    Serial.println("Heat:OFF Cool:ON");
+  break;
 }
 updateMeasurement = false;
 }
