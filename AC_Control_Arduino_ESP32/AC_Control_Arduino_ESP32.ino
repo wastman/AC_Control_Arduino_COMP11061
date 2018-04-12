@@ -114,6 +114,12 @@ humidityDHTGreenhouse = dhtSensorGreenhouse.readHumidity();
 //getting greenhouse value (temp)
 tempratureDHTEquipment = dhtSensorEquipment.readTemperature();
 
+//Sending mqtt
+if (!isnan(tempratureDHTGreenhouse)) {
+  snprintf (msg, 20, "%lf", tempratureDHTGreenhouse);
+  client.publish("AcControl/Status/TempratureGreenhouse", msg);
+}
+
 Serial.print("Greenhouse ");
 Serial.print(tempratureDHTGreenhouse); 
 Serial.print(" ");
