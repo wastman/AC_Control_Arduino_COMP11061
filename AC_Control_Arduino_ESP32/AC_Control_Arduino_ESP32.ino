@@ -120,6 +120,16 @@ if (!isnan(tempratureDHTGreenhouse)) {
   client.publish("AcControl/Status/TempratureGreenhouse", msg);
 }
 
+if (!isnan(humidityDHTGreenhouse)) {
+  snprintf (msg, 20, "%lf", humidityDHTGreenhouse);
+  client.publish("AcControl/Status/HumidityGreenhouse", msg);
+}
+
+if (!isnan(tempratureDHTEquipment)) {
+  snprintf (msg, 20, "%lf", tempratureDHTEquipment);
+  client.publish("AcControl/Status/TempratureEquipmentroom", msg);
+}
+
 Serial.print("Greenhouse ");
 Serial.print(tempratureDHTGreenhouse); 
 Serial.print(" ");
