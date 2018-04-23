@@ -67,7 +67,7 @@ rfidSensor.PCD_Init();//initial RFID Sensor
 hw_timer_t * updateTimer = NULL;
 updateTimer = timerBegin(0,80,true);
 timerAttachInterrupt(updateTimer, &UpdateTimerInterrupt, true);
-timerAlarmWrite(updateTimer,1500000, true);
+timerAlarmWrite(updateTimer,1000000, true);
 timerAlarmEnable(updateTimer);
 
 //connecting with wifi
