@@ -28,7 +28,7 @@ MFRC522 rfidSensor(SS_PIN, RST_PIN);
 //Wifi connection and mqtt server adress
 const char* ssid = "WlanWastman";
 const char* password = "kreuzer1908";
-const char* mqtt_server = "192.168.119.44";
+const char* mqtt_server = "192.168.178.233";
 WiFiClient espClient;
 PubSubClient client(espClient);
 
@@ -40,6 +40,7 @@ PubSubClient client(espClient);
 #define AUTO 1
 #define HEAT 2
 #define COOL 3
+#define OFF 4
 boolean updateMeasurement = false;
 char msg[20];
 byte modeAcControl = AUTO;
@@ -66,7 +67,7 @@ rfidSensor.PCD_Init();//initial RFID Sensor
 hw_timer_t * updateTimer = NULL;
 updateTimer = timerBegin(0,80,true);
 timerAttachInterrupt(updateTimer, &UpdateTimerInterrupt, true);
-timerAlarmWrite(updateTimer,1000000, true);
+timerAlarmWrite(updateTimer,1500000, true);
 timerAlarmEnable(updateTimer);
 
 //connecting with wifi
@@ -114,40 +115,40 @@ humidityDHTGreenhouse = dhtSensorGreenhouse.readHumidity();
 //getting greenhouse value (temp)
 tempratureDHTEquipment = dhtSensorEquipment.readTemperature();
 
+if (isnan(tempratureDHTGreenhouse) || isnan(humidityDHTGreenhouse) || isnan(tempratureDHTEquipment)){
+Serial.println("Sensor Error");
+client.publish("AcControl/Status/Sensor", "ERROR");
+} else {
+client.publish("AcControl/Status/Sensor", "ONLINE");
+
 //Sending mqtt
-if (!isnan(tempratureDHTGreenhouse)) {
-  snprintf (msg, 20, "%lf", tempratureDHTGreenhouse);
-  client.publish("AcControl/Status/TempratureGreenhouse", msg);
-}
+snprintf (msg, 20, "%lf", tempratureDHTGreenhouse);
+client.publish("AcControl/Status/TempratureGreenhouse", msg);
 
-if (!isnan(humidityDHTGreenhouse)) {
-  snprintf (msg, 20, "%lf", humidityDHTGreenhouse);
-  client.publish("AcControl/Status/HumidityGreenhouse", msg);
-}
+snprintf (msg, 20, "%lf", humidityDHTGreenhouse);
+client.publish("AcControl/Status/HumidityGreenhouse", msg);
 
-if (!isnan(tempratureDHTEquipment)) {
-  snprintf (msg, 20, "%lf", tempratureDHTEquipment);
-  client.publish("AcControl/Status/TempratureEquipmentroom", msg);
-}
+snprintf (msg, 20, "%lf", tempratureDHTEquipment);
+client.publish("AcControl/Status/TempratureEquipmentroom", msg);
 
 Serial.print("Greenhouse ");
 Serial.print(tempratureDHTGreenhouse); 
 Serial.print(" ");
 Serial.print(humidityDHTGreenhouse);
 Serial.print(" Equipment "); 
-Serial.println(tempratureDHTEquipment);
+Serial.print(tempratureDHTEquipment);
 
 switch (modeAcControl){ 
   case AUTO:
     Serial.print(" Mode:Auto ");
-    client.publish("AcControl/Status/Mode", "Auto");
-    if ( tempratureDHTGreenhouse < tempratureDHTEquipment-1){
+    client.publish("AcControl/Status/Mode", "AUTO");
+    if ( tempratureDHTGreenhouse < tempratureDHTEquipment-2){
       digitalWrite(COOL_AC_BLUE_LED, HIGH);
       digitalWrite(HEAT_AC_RED_LED, LOW);
       client.publish("AcControl/Status/Heat", "OFF");
       client.publish("AcControl/Status/Cool", "ON");
       Serial.println("Heat:OFF Cool:ON");
-  } else if ( tempratureDHTGreenhouse > tempratureDHTEquipment+1){
+  } else if ( tempratureDHTGreenhouse > tempratureDHTEquipment+2){
       digitalWrite(HEAT_AC_RED_LED, HIGH);
       digitalWrite(COOL_AC_BLUE_LED, LOW);
       client.publish("AcControl/Status/Heat", "ON");
@@ -163,7 +164,7 @@ switch (modeAcControl){
   break;
   case HEAT:
     Serial.print(" Mode:Heat ");
-    client.publish("AcControl/Status/Mode", "Heat");
+    client.publish("AcControl/Status/Mode", "HEAT");
     digitalWrite(HEAT_AC_RED_LED, HIGH);
     digitalWrite(COOL_AC_BLUE_LED, LOW);
     client.publish("AcControl/Status/Heat", "ON");
@@ -172,13 +173,23 @@ switch (modeAcControl){
   break;
   case COOL:
     Serial.print(" Mode:Cool ");
-    client.publish("AcControl/Status/Mode", "Cool");
+    client.publish("AcControl/Status/Mode", "COOL");
     digitalWrite(COOL_AC_BLUE_LED, HIGH);
     digitalWrite(HEAT_AC_RED_LED, LOW);
     client.publish("AcControl/Status/Heat", "OFF");
     client.publish("AcControl/Status/Cool", "ON");
     Serial.println("Heat:OFF Cool:ON");
   break;
+  case OFF:
+    Serial.print(" Mode:Off ");
+    client.publish("AcControl/Status/Mode", "OFF");
+    digitalWrite(COOL_AC_BLUE_LED, LOW);
+    digitalWrite(HEAT_AC_RED_LED, LOW);
+    client.publish("AcControl/Status/Heat", "OFF");
+    client.publish("AcControl/Status/Cool", "OFF");
+    Serial.println("Heat:OFF Cool:OFF");
+  break;
+}
 }
 updateMeasurement = false;
 }
@@ -195,6 +206,8 @@ rfidSensor.PICC_HaltA();
 rfidIDString = String(rfidID, DEC);
 Serial.print("RFID scanned: ");
 Serial.println(rfidIDString);
+rfidIDString.toCharArray(msg, rfidIDString.length()+1); 
+client.publish("AcControl/Status/RFID", msg);
  } 
 }
 
@@ -218,6 +231,9 @@ Serial.print("Mode: HEAT");
 }else if ((char)payload[0] == '3'){
 modeAcControl=COOL;
 Serial.print("Mode: COOL");
+}else if ((char)payload[0] == '4'){
+modeAcControl=OFF;
+Serial.print("Mode: OFF");
 }else{
 Serial.print("this is no valid command: ");
 Serial.print(recMsg);
