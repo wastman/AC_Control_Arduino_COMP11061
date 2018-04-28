@@ -91,7 +91,7 @@ if (!client.connected()) {
   mqttconnect();
 }
 
-//Every 0,5 seconds update measurement
+//Every 1 seconds update measurement
 if (updateMeasurement == true){
   UpdateMeasurement();
 }
